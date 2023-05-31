@@ -19,6 +19,8 @@ public abstract class RabbitMqTestContainer {
 
   @DynamicPropertySource
   static void registerProperties(DynamicPropertyRegistry dynamicPropertyRegistry) {
+    System.setProperty("spring.rabbitmq.host", rabbitMQContainer.getHost());
+    System.setProperty("spring.rabbitmq.port", String.valueOf(rabbitMQContainer.getMappedPort(RABBITMQ_PORT)));
     dynamicPropertyRegistry.add("spring.rabbitmq.host", rabbitMQContainer::getHost);
     dynamicPropertyRegistry.add("spring.rabbitmq.port", () -> rabbitMQContainer.getMappedPort(RABBITMQ_PORT));
   }

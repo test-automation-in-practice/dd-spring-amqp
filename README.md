@@ -12,6 +12,10 @@ Quick start can be followed [here](/documentation/quick-start.md).
 
 Several use cases were implemented in this project, out of many possibilites. In a seprate section those possibilities and the concrete implementation are further [described](/documentation/structure.md).
 
+## Production
+
+Some production stuff can be seen [here](/documentation/production.md).
+
 ## Glossary
 
 * [Messaging Protocols](/documentation/glossary/messaging-protocols.md)
