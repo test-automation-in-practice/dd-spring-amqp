@@ -24,10 +24,21 @@ With AMQP/RabbitMQ several pattern can be implemented listed in the tutorials pa
 
 ### Exchange
 
-* Direct
-* Fanout
-* Topic
-* Header
+## Direct
+  
+<img src="images/direct-exchange.png">
+
+## Fanout
+
+<img src="images/fanout-exchange.png">
+
+## Topic
+
+<img src="images/topic-exchange.png">
+
+## Header
+
+<img src="images/header-exchange.png">
 
 ### Queue
 
@@ -47,9 +58,16 @@ With AMQP/RabbitMQ several pattern can be implemented listed in the tutorials pa
 
 ### Error Handling Strategies
 
-* Dead letter exchange and queue
-* Parking lot
+## Dead letter exchange and queue
+
+<img src="images/deadletter-error-handling.png">
+
+## Parking lot
+
+<img src="images/pot-error-handling.png">
 
 ### Extra
 
  * Parallel message requeuing - the extra parallel message requeuing strategy from the [baeldung](https://www.baeldung.com/spring-amqp-exponential-backoff) page was used here.
+
+<img src="images/custom-retry.png">
