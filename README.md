@@ -47,3 +47,14 @@ Testing the Spring AMQP application:
 * https://gaddings.io/testing-spring-boot-apps-with-rabbitmq-using-testcontainers/
 * https://www.youtube.com/watch?v=dN60NUAZF7U
 * https://docs.spring.io/spring-amqp/docs/current/reference/html/testing.html
+
+## RabbitMQ and Spring AMQP Links
+
+* RabbitMQ-related links:
+  * https://www.rabbitmq.com/
+  * https://www.rabbitmq.com/getstarted.html
+  * https://github.com/rabbitmq
+  * https://groups.google.com/g/rabbitmq-users
+* Spring AMQP
+  * https://spring.io/projects/spring-amqp
+  * https://github.com/spring-projects/spring-amqp

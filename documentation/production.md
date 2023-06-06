@@ -19,12 +19,16 @@ Questions:
 ### Decisions features
 
 * Streams
+  * https://www.rabbitmq.com/streams.html
   * If the queue backlog is very long then streams are the best solution.
 * Quorum Queues
+  * Based on the Raft consensus algorithm: https://raft.github.io/
+  * https://www.rabbitmq.com/quorum-queues.html
   * Quorum queues are purpose-built by design. They are not designed to be used for every problem. Their intended use is for topologies where queues exist for a long time and are critical to certain aspects of system operation, therefore fault tolerance and data safety are more important than, say, the lowest possible latency and advanced queue features.
   * Publisher confirms will only be issued once a published message has been successfully replicated to a quorum of nodes and is considered "safe" within the context of the system.
   * **Examples** would be incoming orders in a sales system or votes cast in an election system where potentially losing messages would have a significant impact on system correctness and function.
 * Classic Queues
+  * https://www.rabbitmq.com/classic-queues.html
   * Temporary nature of queues: transient or exclusive queues, high queue churn (declaration and deletion rates)
   * Lowest possible latency: the underlying consensus algorithm has an inherently higher latency due to its data safety features
   * When data safety is not a priority (e.g. applications do not use manual acknowledgments and publisher confirms are not used)
@@ -50,6 +54,11 @@ For message delivering safety checking the delivered content to and from the Rab
 
 #### Publisher Confirms
 
+For unroutable messages, the broker will issue a confirmation once the exchange verifies a message won't route to any queue (returns an empty list of queues). If the message is also published as mandatory, the basic.return is sent to the client before basic.ack. The same is true for negative acknowledgments (basic.nack).
+
+For routable messages, the basic.ack is sent when a message has been accepted by all the queues. For persistent messages routed to durable queues, this means persisting to disk. For quorum queues, this means that a quorum replicas have accepted and confirmed the message to the elected leader.
+
+##### How to
 The feature which checks the data safety from sending the message to the queue is known as Publisher Confirms. 
 1. In Spring AMQP the `CachingConnectionFactory` is used for that purpose and its published type is set to `CORRELATED`.
 2. `RabbitTemplate` instance is created with the factory and the mandatory property is set to true, also a callback function is set to the confirm callback property. This way you can get callback messages on the rabbit template when a message was acknowledged.
@@ -57,10 +66,17 @@ The feature which checks the data safety from sending the message to the queue i
 
 #### Manual Acknowledgement
 
+##### How to
 Manual Acknowledgement is set on the `@RabbitListener` as property `ackMode = "MANUAL"` and two more arguments are needed on the method which are a `Channel` and the delivery-tag from the header `@Header(AmqpHeaders.DELIVERY_TAG) long`.
 
 **Note**: The SimpleNewsPublisherConfirms example shows how these features can be implemented.
 **Note**: Consider also the difference in the channel-prefetch behavior of the automatic and manual acknowledgment.
+
+#### Table of queue usage
+|Queue Type|Publisher Confirms|Manual Acknowledgement|Description|
+|-|-|-|-|
+|Quorum|yes|yes|Most data safety but least data throughput|
+|Classic|no|no|Least data safety but least data throughput|
 
 ## What should happen with not delivered messages?
 
@@ -86,13 +102,11 @@ For example, Spring Cloud Stream Binder abstraction even has a dedicated feature
 
 Keys need to be created and also the trusted store is the first step which then needs to be bound to the RabbitMQ system and the Spring AMQP application.
 
-### RabbitMQ
+### TLS configuration in RabbitMQ
 
 [Here](https://www.rabbitmq.com/ssl.html) are instructions on how to set the properties in a configuration file.
-* Would there be any more issues when configuring a cluster?
-* https://rabbitmq.com/clustering-ssl.html
 
-### Spring AMQP
+### TLS configuration in Spring AMQP
 
 [Here](https://docs.spring.io/spring-amqp/reference/html/#rabbitconnectionfactorybean-configuring-ssl) are instructions on how to set the properties in a configuration file.
 
@@ -108,9 +122,13 @@ rabbitConnectionFactoryBean.setSslPropertiesLocation(new ClassPathResource("ssl.
 CachingConnectionFactory cachingConnectionFactory = new CachingConnectionFactory(rabbitConnectionFactoryBean.getRabbitConnectionFactory());
 ```
 
+### TLS configuration in RabbitMQ Cluster
+
+[Here](https://rabbitmq.com/clustering-ssl.html) is a page how on a cluster should be configured with a TLC communication.
+
 ## Credentials adjustments
 
 The user **guest** can only access from the local host and it is used for demonstration purposes
 [Here](https://www.rabbitmq.com/access-control.html
 ) is described how new RabbitMQ users can be created and used.
-In Spring AMQP the user and password are set on the connection factory with setter methods.
+In Spring AMQP the user and password are set on the "connection factory" with setter methods.
