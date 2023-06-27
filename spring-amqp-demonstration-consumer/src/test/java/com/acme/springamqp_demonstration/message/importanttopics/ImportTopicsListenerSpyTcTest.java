@@ -5,6 +5,7 @@ import com.acme.springamqp_demonstration.message.MessageConverterBeans;
 import com.acme.springamqp_demonstration.message.RabbitMqTestContainer;
 import com.acme.springamqp_demonstration.message.RabbitTemplateTestBeans;
 import com.acme.springamqp_demonstration.message.importanttopics.model.ImportantTopic;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.amqp.rabbit.test.RabbitListenerTest;
@@ -25,6 +26,15 @@ import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.BDDMockito.willAnswer;
 import static org.mockito.Mockito.verify;
 
+/**
+ * This is an example of a unit tes based on the RabbitListenerTestHarness like described in the documentation od Spring
+ * AMQP. Is it not necessary now, and because it goes in conflict with the
+ * {@link ImportantTopicsListenerIntegrationTcTest} it is disabled by now.
+ * This test and {@link ImportantTopicsListenerIntegrationTcTest} are testing the same use case.
+ */
+@Disabled("This test and ImportantTopicsListenerIntegrationTcTest are testing the same use case. But because it " +
+		"is an test based of RabbitListenerTestHarness like described in the documentation od Spring AMQP it can stays " +
+		"as an example implementation.")
 @SpringJUnitConfig
 @DirtiesContext
 @PropertySource("classpath:important-topics.properties")

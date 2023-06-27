@@ -15,26 +15,10 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ContextConfiguration;
 
-import java.util.concurrent.TimeUnit;
-
-import static org.awaitility.Awaitility.await;
-import static org.hamcrest.CoreMatchers.is;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
-/**
- * FIXME - Modify this test after the <a href="https://github.com/spring-projects/spring-amqp/milestone/210">release
- * of Spring AMQP 3.0.5 on June 19, 2023</a> because of the:
- * <ul>
- * <li><a href="https://github.com/spring-projects/spring-amqp/issues/2456">Bug 2456</a></li>
- * <li><a href="https://github.com/spring-projects/spring-amqp/issues/2457">Fix 2457</a></li>
- * </ul>
- * Modify the part of {@link ImportantTopicsGeneralTestListener} by replacing it with the verify command on the original
- * implementation {@link ImportantTopicsGeneralListener}.
- *
- */
-@Disabled
 @SpringBootTest
 @ContextConfiguration(
     classes = {
@@ -43,13 +27,15 @@ import static org.mockito.Mockito.verify;
         ImportantTopicsConfig.class, // creates the exchange and the queue if not already created.
         DefaultContainerFactoryConfig.class, // mandatory for testing :/
         ImportantTopicsListenerSpy.class, // loads the listeners as spy.
-        ImportantTopicsGeneralTestListener.class // load the special for testing prepared listener. :/ Spying leads to ambiguous method recognition.
+        ImportantTopicsGeneralListenerSpy.class // load the special for testing prepared listener. :/ Spying leads to ambiguous method recognition.
     }
 )
 public class ImportantTopicsListenerIntegrationTcTest extends RabbitMqTestContainer {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(ImportantTopicsListenerIntegrationTcTest.class);
   public static final int WANTED_NUMBER_OF_INVOCATIONS_IT = 2;
+  public static final int WANTED_NUMBER_OF_INVOCATIONS_GENERAL_STRING = 2;
+  public static final int WANTED_NUMBER_OF_INVOCATIONS_GENERAL_OBJECT = 2;
 
   @Autowired
   private RabbitTemplate rabbitTemplate;
@@ -58,11 +44,14 @@ public class ImportantTopicsListenerIntegrationTcTest extends RabbitMqTestContai
   private String IMPORTANT_TOPICS_EXCHANGE_NAME;
 
   private final ImportantTopicsListener importantTopicsListener;
+  private final ImportantTopicsGeneralListener importantTopicsGeneralListener;
 
   ImportantTopicsListenerIntegrationTcTest(
-      @Autowired ImportantTopicsListener importantTopicsListener
+      @Autowired ImportantTopicsListener importantTopicsListener,
+      @Autowired ImportantTopicsGeneralListener importantTopicsGeneralListener
   ) {
     this.importantTopicsListener = importantTopicsListener;
+    this.importantTopicsGeneralListener = importantTopicsGeneralListener;
   }
 
   @Test
@@ -89,19 +78,11 @@ public class ImportantTopicsListenerIntegrationTcTest extends RabbitMqTestContai
 
     try {
       verify(importantTopicsListener, times(WANTED_NUMBER_OF_INVOCATIONS_IT)).receiveImportantTopics(any());
+      verify(importantTopicsGeneralListener, times(WANTED_NUMBER_OF_INVOCATIONS_GENERAL_STRING)).receiveGeneralTopicsString(any());
+      verify(importantTopicsGeneralListener, times(WANTED_NUMBER_OF_INVOCATIONS_GENERAL_OBJECT)).receiveGeneralTopics(any());
     } catch (Exception e) {
       throw new RuntimeException(e);
     }
-    // Workaround for the "ImportantTopicsGeneralListener".
-    // Almost same implementation but with array so gathering the received messages.
-    await()
-        .atMost(5, TimeUnit.SECONDS)
-        .until(
-            () ->
-                ImportantTopicsGeneralTestListener.RECEIVED_IMPORTANT_TOPIC.size() == 2
-                    && ImportantTopicsGeneralTestListener.RECEIVED_MESSAGES.size() == 2,
-            is(true)
-        );
   }
 
 }

@@ -19,9 +19,8 @@
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-amqp</artifactId>
-            <version>3.0.5</version>
+            <version>3.1.1</version>
         </dependency>
-
         <dependency>
             <groupId>com.acme</groupId>
             <artifactId>spring-amqp-demonstration-commons</artifactId>

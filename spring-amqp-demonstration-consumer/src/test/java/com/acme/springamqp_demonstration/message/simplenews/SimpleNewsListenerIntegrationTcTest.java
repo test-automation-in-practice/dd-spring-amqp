@@ -21,16 +21,6 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
-/**
- * FIXME - Modify this test after the <a href="https://github.com/spring-projects/spring-amqp/milestone/210">release
- * of Spring AMQP 3.0.5 on June 19, 2023</a> because of the:
- * <ul>
- * <li><a href="https://github.com/spring-projects/spring-amqp/issues/2456">Bug 2456</a></li>
- * <li><a href="https://github.com/spring-projects/spring-amqp/issues/2457">Fix 2457</a></li>
- * </ul>
- * Modify the part of {@link SimpleNewsWorkerTest} by replacing it with the verify command on the original
- * implementation {@link SimpleNewsWorker}.
- */
 @SpringBootTest
 @ContextConfiguration(
     classes = {
@@ -46,6 +36,8 @@ public class SimpleNewsListenerIntegrationTcTest extends RabbitMqTestContainer {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(SimpleNewsListenerIntegrationTcTest.class);
   public static final int WANTED_NUMBER_OF_INVOCATIONS_Q2 = 2;
+  public static final int WANTED_NUMBER_OF_INVOCATIONS_C1 = 1;
+  public static final int WANTED_NUMBER_OF_INVOCATIONS_C2 = 1;
 
   @Autowired
   private RabbitTemplate rabbitTemplate;
@@ -55,10 +47,18 @@ public class SimpleNewsListenerIntegrationTcTest extends RabbitMqTestContainer {
 
   private final SimpleNewsListener simpleNewsListener;
 
+  private final SimpleNewsWorker receiveSimpleNews1Consumer1;
+
+  private final SimpleNewsWorker receiveSimpleNews1Consumer2;
+
   SimpleNewsListenerIntegrationTcTest(
-      @Autowired SimpleNewsListener simpleNewsListener
+      @Autowired SimpleNewsListener simpleNewsListener,
+      @Autowired SimpleNewsWorker receiveSimpleNews1Consumer1,
+      @Autowired SimpleNewsWorker receiveSimpleNews1Consumer2
   ) {
     this.simpleNewsListener = simpleNewsListener;
+    this.receiveSimpleNews1Consumer1 = receiveSimpleNews1Consumer1;
+    this.receiveSimpleNews1Consumer2 = receiveSimpleNews1Consumer2;
   }
 
   @Test
@@ -77,20 +77,11 @@ public class SimpleNewsListenerIntegrationTcTest extends RabbitMqTestContainer {
 
     try {
       verify(simpleNewsListener, times(WANTED_NUMBER_OF_INVOCATIONS_Q2)).receiveSimpleNews2(any());
+      verify(receiveSimpleNews1Consumer1, times(WANTED_NUMBER_OF_INVOCATIONS_C1)).receiveMsg(any());
+      verify(receiveSimpleNews1Consumer2, times(WANTED_NUMBER_OF_INVOCATIONS_C2)).receiveMsg(any());
     } catch (Exception e) {
       throw new RuntimeException(e);
     }
-
-    // Workaround for the "SimpleNewsWorkersListener".
-    // Almost same implementation but with map for gathering the received messages.
-    await()
-        .atMost(5, TimeUnit.SECONDS)
-        .until(
-            () ->
-                SimpleNewsWorkerTest.RECEIVED_MESSAGES.get(1).size() == 1
-                    && SimpleNewsWorkerTest.RECEIVED_MESSAGES.get(2).size() == 1,
-            is(true)
-        );
   }
 
 }

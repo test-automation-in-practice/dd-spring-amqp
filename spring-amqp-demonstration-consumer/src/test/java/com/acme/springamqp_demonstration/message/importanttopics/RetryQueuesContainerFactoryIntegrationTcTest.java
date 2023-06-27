@@ -28,6 +28,11 @@ import static org.awaitility.Awaitility.await;
 import static org.hamcrest.CoreMatchers.is;
 
 
+/**
+ * This test is used for testing the custom retry mechanism, and since it uses the same queue as the test
+ * {@link ImportantTopicsParallelRetryListenerIntegrationTcTest} which leads to inconsistency is it disabled by default.
+ * This test should be used only when the custom retry mechanism needs to be debugged in detail.
+ */
 @SpringBootTest
 @ContextConfiguration(
     classes = {
@@ -38,7 +43,8 @@ import static org.hamcrest.CoreMatchers.is;
         RabbitTemplateTestBeans.class // creates rabbitTemplate instance for auto writing.
     }
 )
-@Disabled
+@Disabled("Because this test collides with another test it is disabled now. This test should be used only when the " +
+    "custom retry mechanism needs to be debugged in detail.")
 public class RetryQueuesContainerFactoryIntegrationTcTest extends RabbitMqTestContainer {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(RetryQueuesContainerFactoryIntegrationTcTest.class);

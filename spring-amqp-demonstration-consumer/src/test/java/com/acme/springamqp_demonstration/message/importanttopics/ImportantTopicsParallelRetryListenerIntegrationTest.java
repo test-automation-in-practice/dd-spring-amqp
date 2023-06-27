@@ -30,8 +30,7 @@ import org.springframework.test.context.junit4.SpringRunner;
         ImportantTopicsParallelRetryListener.class // loads the listeners.
     }
 )
-@Ignore
-@Disabled
+@Disabled("A RabbitMQ application should be running in background, therefor it is disabled")
 public class ImportantTopicsParallelRetryListenerIntegrationTest {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ImportantTopicsParallelRetryListenerIntegrationTest.class);
@@ -42,7 +41,6 @@ public class ImportantTopicsParallelRetryListenerIntegrationTest {
     @Value("${important.topics.exchange.name.pr}")
     private String IMPORTANT_TOPICS_EXCHANGE_NAME_PR;
 
-    @Disabled
     @Test
     public void whenSendToNonBlockingQueue_thenAllMessageProcessed() throws Exception {
         int nb = 2;
